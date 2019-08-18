@@ -117,10 +117,8 @@ Indexed_list<T>::Item_wrapper::Item_wrapper(size_t _index, const T& _item):
     index{_index},item{_item}{
 }
 template<typename T>
-Indexed_list<T>::Item_wrapper::~Item_wrapper(){
-    // Uncomment for Item_wrapper ~destructor invocation
-    // std::cout << "USUNIENTO element: "<< index << "o wartosci: " << item << std::endl;
-}
+Indexed_list<T>::Item_wrapper::~Item_wrapper() = default;
+
 template<typename T>
 void Indexed_list<T>::Item_wrapper::connect_next(Item_wrapper* new_wrapper){
     this->next = new_wrapper;
