@@ -77,7 +77,10 @@ public:
     void pop_back();
     void pop_front();
     void clear();
-    void delete_item(size_t position);
+    void delete_item( size_t position );
+
+    void concat( Indexed_list<T>& _other );
+    void concat( Indexed_list<T>&& _other );
 
     T& at( size_t index );
     T& last_element ()const;
@@ -117,8 +120,10 @@ Indexed_list<T>::Item_wrapper::Item_wrapper(size_t _index, const T& _item):
     index{_index},item{_item}{
 }
 template<typename T>
-Indexed_list<T>::Item_wrapper::~Item_wrapper() = default;
-
+Indexed_list<T>::Item_wrapper::~Item_wrapper(){
+    // Uncomment for Item_wrapper ~destructor invocation
+    // std::cout << "USUNIENTO element: "<< index << "o wartosci: " << item << std::endl;
+}
 template<typename T>
 void Indexed_list<T>::Item_wrapper::connect_next(Item_wrapper* new_wrapper){
     this->next = new_wrapper;
@@ -310,17 +315,23 @@ void Indexed_list<T>::push_front(T&& _element)
 template<typename T>
 void Indexed_list<T>::pop_back()
 {
-    m_end = m_end->previous;
-    delete m_end->next;
-    --m_size;
+    if(m_size != 0)
+    {
+        m_end = m_end->previous;
+        delete m_end->next;
+        --m_size;
+    }
 };
 template<typename T>
 void Indexed_list<T>::pop_front()
 {
-    m_start = m_start->next;
-    delete m_start->previous;
-    m_update_indexes();
-    --m_size;
+    if(m_size != 0)
+    {
+        m_start = m_start->next;
+        delete m_start->previous;
+        m_update_indexes();
+        --m_size;
+    }
 }
 
 template<typename T>
@@ -350,6 +361,29 @@ void Indexed_list<T>::delete_item(size_t index)
         --m_size;
         m_update_indexes(index-1,m_size-1);
     };
+}
+
+template<typename T>
+void Indexed_list<T>::concat( Indexed_list<T> &&_other )
+{
+    this->m_end->connect_next(_other.m_start);
+    this->m_end = _other.m_end;
+
+    this->m_size += _other.m_size;
+
+    this->m_update_indexes();
+
+    _other.m_start = nullptr;
+    _other.m_end = nullptr;
+    _other.m_size = 0;
+};
+
+template<typename T>
+void Indexed_list<T>::concat( Indexed_list<T> &_other)
+{
+    std::for_each(_other.begin(),_other.end(),[this](T& _item){
+        this->push_back(_item);
+    });
 };
 
 // Utility
